@@ -48,7 +48,7 @@ jobs:
     steps:
       - name: Run Trivy vulnerability scanner
         # Check the release page for the current tag before using: https://github.com/aquasecurity/trivy-action/releases
-        uses: aquasecurity/trivy-action@0.36.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ needs.docker-latest.outputs.image_url }}
           format: "table"
