@@ -1,0 +1,72 @@
+name: Main Branch Pipeline
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    outputs:
+      short_sha: ${{ steps.sha.outputs.short_sha }}
+    steps:
+      - name: Compute short SHA
+        id: sha
+        run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-7)" >> "$GITHUB_OUTPUT"
+
+  build-test:
+    needs: prep
+    uses: ./.github/workflows/reusable-build-test.yml
+    with:
+      node_version: '24'
+      run_tests: true
+
+  docker-latest:
+    needs: build-test
+    uses: ./.github/workflows/reusable-docker.yml
+    with:
+      image_name: github-actions-capstone
+      tag: latest
+    secrets:
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+  docker-sha:
+    needs: [build-test, prep]
+    uses: ./.github/workflows/reusable-docker.yml
+    with:
+      image_name: github-actions-capstone
+      tag: sha-${{ needs.prep.outputs.short_sha }}
+    secrets:
+      docker_username: ${{ secrets.DOCKER_USERNAME }}
+      docker_token: ${{ secrets.DOCKER_TOKEN }}
+
+  # --- Brownie points: DevSecOps scan, runs against the freshly pushed :latest tag ---
+  security-scan:
+    needs: docker-latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Trivy vulnerability scanner
+        # Check the release page for the current tag before using: https://github.com/aquasecurity/trivy-action/releases
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+          image-ref: ${{ needs.docker-latest.outputs.image_url }}
+          format: 'table'
+          output: 'trivy-report.txt'
+          severity: 'CRITICAL'
+          exit-code: '1'
+
+      - name: Upload Trivy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-report
+          path: trivy-report.txt
+
+  deploy:
+    needs: [docker-latest, docker-sha, security-scan]
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Deploy notification
+        run: 'echo "Deploying image: ${{ needs.docker-latest.outputs.image_url }} to production"'

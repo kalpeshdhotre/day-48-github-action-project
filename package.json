@@ -1,0 +1,13 @@
+{
+  "name": "github-actions-capstone",
+  "version": "1.0.0",
+  "description": "Day 48 - GitHub Actions end-to-end CI/CD capstone project",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "bash test.sh"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
