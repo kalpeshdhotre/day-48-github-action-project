@@ -4,11 +4,12 @@ A small Node.js/Express app with a `/health` endpoint, containerized with a
 multi-stage Dockerfile, wired to a full CI/CD pipeline built entirely from
 reusable GitHub Actions workflows.
 
-![PR Pipeline](https://github.com/kalpeshdhotre/github-actions-capstone/actions/workflows/pr-pipeline.yml/badge.svg)
-![Main Pipeline](https://github.com/kalpeshdhotre/github-actions-capstone/actions/workflows/main-pipeline.yml/badge.svg)
-![Health Check](https://github.com/kalpeshdhotre/github-actions-capstone/actions/workflows/health-check.yml/badge.svg)
+![PR Pipeline](https://github.com/kalpeshdhotre/day-48-github-action-project/actions/workflows/pr-pipeline.yml/badge.svg)
+![Main Pipeline](https://github.com/kalpeshdhotre/day-48-github-action-project/actions/workflows/main-pipeline.yml/badge.svg)
+![Health Check](https://github.com/kalpeshdhotre/day-48-github-action-project/actions/workflows/health-check.yml/badge.svg)
 
 ## What's here
+
 - `server.js` / `package.json` — Express app, single `/health` endpoint
 - `test.sh` — curls `/health` and checks for a 200
 - `Dockerfile` — multi-stage build (deps → runtime)
