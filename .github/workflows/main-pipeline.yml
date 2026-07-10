@@ -44,19 +44,20 @@ jobs:
     secrets:
       docker_token: ${{ secrets.DOCKER_TOKEN }}
 
-  # --- Brownie points: DevSecOps scan against the freshly pushed :latest tag ---
-  # security-scan:
-  #   needs: docker-latest
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Run Trivy vulnerability scanner
-  #       uses: aquasecurity/trivy-action@v0.36.0
-  #       with:
-  #         image-ref: ${{ needs.docker-latest.outputs.image_url }}
-  #         format: 'table'
-  #         output: 'trivy-report.txt'
-  #         severity: 'CRITICAL'
-  #         exit-code: '1'
+  # --- Brownie points: DevSecOps scan, runs against the freshly pushed :latest tag ---
+  security-scan:
+    needs: docker-latest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run Trivy vulnerability scanner
+        # Check the release page for the current tag before using: https://github.com/aquasecurity/trivy-action/releases
+        uses: aquasecurity/trivy-action@0.36.0
+        with:
+          image-ref: ${{ needs.docker-latest.outputs.image_url }}
+          format: "table"
+          output: "trivy-report.txt"
+          severity: "CRITICAL"
+          exit-code: "1"
 
   #     - name: Upload Trivy report
   #       if: always()
