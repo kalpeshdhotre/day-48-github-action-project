@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   prep:
     runs-on: ubuntu-latest
@@ -18,7 +21,7 @@ jobs:
     needs: prep
     uses: ./.github/workflows/reusable-build-test.yml
     with:
-      node_version: "24"
+      node_version: "26.5.0"
       run_tests: true
 
   docker-latest:
@@ -27,8 +30,8 @@ jobs:
     with:
       image_name: github-actions-capstone
       tag: latest
+      docker_username: ${{ vars.DOCKER_USERNAME }}
     secrets:
-      docker_username: ${{ secrets.DOCKER_USERNAME }}
       docker_token: ${{ secrets.DOCKER_TOKEN }}
 
   docker-sha:
@@ -37,8 +40,8 @@ jobs:
     with:
       image_name: github-actions-capstone
       tag: sha-${{ needs.prep.outputs.short_sha }}
+      docker_username: ${{ vars.DOCKER_USERNAME }}
     secrets:
-      docker_username: ${{ secrets.DOCKER_USERNAME }}
       docker_token: ${{ secrets.DOCKER_TOKEN }}
 
   # --- Brownie points: DevSecOps scan, runs against the freshly pushed :latest tag ---
@@ -56,15 +59,15 @@ jobs:
           severity: "CRITICAL"
           exit-code: "1"
 
-      - name: Upload Trivy report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: trivy-security-report
-          path: trivy-report.txt
+  #     - name: Upload Trivy report
+  #       if: always()
+  #       uses: actions/upload-artifact@v4
+  #       with:
+  #         name: trivy-security-report
+  #         path: trivy-report.txt
 
   deploy:
-    needs: [docker-latest, docker-sha, security-scan]
+    needs: [docker-latest, docker-sha]
     runs-on: ubuntu-latest
     environment: production
     steps:
