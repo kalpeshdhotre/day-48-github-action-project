@@ -52,10 +52,22 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
+          pull: true
           push: false
           load: true
           no-cache: true
           tags: ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}
+
+          # print Version
+      - name: Show Node and npm in built image
+        run: |
+          docker run --rm ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }} node -v
+          docker run --rm ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }} npm -v
+
+      - name: Show bundled undici version
+        run: |
+          docker run --rm ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }} \
+          sh -c 'cat /usr/local/lib/node_modules/npm/node_modules/undici/package.json | grep "\"version\""'
 
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@v0.36.0
