@@ -9,10 +9,7 @@
   },
   "dependencies": {
     "express": "^4.19.2",
-<<<<<<< HEAD
-    "undici": "^6.27.0"
-=======
-    "lodash": "^4.18.1"
->>>>>>> 7ee34fd (test: add new dependecy - trigger review)
+    "undici": "^6.27.0",
+    "zest": "^0.1.3"
   }
 }
