@@ -54,6 +54,7 @@ jobs:
           context: .
           push: false
           load: true
+          no-cache: true
           tags: ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}
 
       - name: Scan image for vulnerabilities
