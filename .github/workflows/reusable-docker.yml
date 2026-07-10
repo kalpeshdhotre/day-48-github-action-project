@@ -4,15 +4,15 @@ on:
   workflow_call:
     inputs:
       image_name:
-        description: 'Docker image name (without registry/username prefix)'
+        description: "Docker image name (without registry/username prefix)"
         required: true
         type: string
       tag:
-        description: 'Tag to apply to the image'
+        description: "Tag to apply to the image"
         required: true
         type: string
       docker_username:
-        description: 'Docker Hub username (not sensitive - public on every image tag)'
+        description: "Docker Hub username (not sensitive - public on every image tag)"
         required: true
         type: string
     secrets:
@@ -20,7 +20,7 @@ on:
         required: true
     outputs:
       image_url:
-        description: 'Full path to the pushed image'
+        description: "Full path to the pushed image"
         value: ${{ jobs.docker-build.outputs.image_url }}
 
 jobs:
@@ -41,12 +41,31 @@ jobs:
           username: ${{ inputs.docker_username }}
           password: ${{ secrets.docker_token }}
 
-      - name: Build and push image
+      # - name: Build and push image
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: .
+      #     push: true
+      #     tags: ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}-
+
+      - name: Build image (local only, not pushed yet)
         uses: docker/build-push-action@v6
         with:
           context: .
-          push: true
+          push: false
+          load: true
           tags: ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}
+
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
+
+      - name: Push image (only reached if scan passed)
+        run: "docker push ${{ inputs.docker_username }}/${{ inputs.image_name }}:${{ inputs.tag }}"
 
       - name: Set image URL output
         id: set-url

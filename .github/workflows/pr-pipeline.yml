@@ -5,12 +5,26 @@ on:
     branches: [main]
     types: [opened, synchronize]
 
+permissions:
+  contents: read
+
 jobs:
   build-test:
     uses: ./.github/workflows/reusable-build-test.yml
     with:
-      node_version: '24'
+      node_version: "24"
       run_tests: true
+
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check Dependencies for Vulnerabilities
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: critical
 
   pr-comment:
     needs: build-test
