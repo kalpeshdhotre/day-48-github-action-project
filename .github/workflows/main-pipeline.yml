@@ -21,7 +21,7 @@ jobs:
     needs: prep
     uses: ./.github/workflows/reusable-build-test.yml
     with:
-      node_version: "24"
+      node_version: "26.5.0"
       run_tests: true
 
   docker-latest:

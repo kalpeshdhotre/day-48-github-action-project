@@ -12,7 +12,7 @@ jobs:
   build-test:
     uses: ./.github/workflows/reusable-build-test.yml
     with:
-      node_version: "24"
+      node_version: "26.5.0"
       run_tests: true
 
   dependency-review:
